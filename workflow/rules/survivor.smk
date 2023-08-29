@@ -35,7 +35,7 @@ rule survivor_filter:  # used by both modes
         excl=exclude_regions(),
         args=survivor_args("filter"),
     conda:
-        "../envs/postproc.yaml"
+        "postproc"
     threads: config.postproc.survivor.threads
     resources:
         mem_mb=config.postproc.survivor.memory,
@@ -93,7 +93,7 @@ rule survivor_merge:  # used by both modes
             os.path.join("{path}", "{sample}", survivor_args("merge")[-1]),
         ],
     conda:
-        "../envs/postproc.yaml"
+        "postproc"
     threads: config.postproc.survivor.threads
     resources:
         mem_mb=config.postproc.survivor.memory,

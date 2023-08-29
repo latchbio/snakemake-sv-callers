@@ -6,17 +6,24 @@ rule delly_p:  # paired-samples analysis
         tumor_bai=get_bai("{path}/{tumor}"),
         normal_bam=get_bam("{path}/{normal}"),
         normal_bai=get_bai("{path}/{normal}"),
+        excl_opt=get_bed()
     params:
         excl_opt='-x "%s"' % get_bed() if exclude_regions() else "",
     output:
-        os.path.join(
+        bcf = os.path.join(
             "{path}",
             "{tumor}--{normal}",
             get_outdir("delly"),
             "delly-{}{}".format("{sv_type}", config.file_exts.bcf),
         ),
+        bcf_index = os.path.join(
+            "{path}",
+            "{tumor}--{normal}",
+            get_outdir("delly"),
+            "delly-{}{}".format("{sv_type}", config.file_exts.bcf),
+        ) + ".csi"
     conda:
-        "../envs/caller.yaml"
+        "caller"
     threads: config.callers.delly.threads
     resources:
         mem_mb=config.callers.delly.memory,
@@ -25,8 +32,8 @@ rule delly_p:  # paired-samples analysis
         """
         set -xe
 
-        OUTDIR="$(dirname "{output}")"
-        PREFIX="$(basename "{output}" .bcf)"
+        OUTDIR="$(dirname "{output.bcf}")"
+        PREFIX="$(basename "{output.bcf}" .bcf)"
         OUTFILE="${{OUTDIR}}/${{PREFIX}}.unfiltered.bcf"
         TSV="${{OUTDIR}}/sample_pairs.tsv"
 
@@ -39,7 +46,7 @@ rule delly_p:  # paired-samples analysis
 
         # run dummy or real job
         if [ "{config.echo_run}" -eq "1" ]; then
-            echo "{input}" > "{output}"
+            echo "{input}" > "{output.bcf}"
         else
             # use OpenMP for threaded jobs
             export OMP_NUM_THREADS={threads}
@@ -65,7 +72,7 @@ rule delly_p:  # paired-samples analysis
                 -t "{wildcards.sv_type}" \
                 -p \
                 -s "${{TSV}}" \
-                -o "{output}" \
+                -o "{output.bcf}" \
                 "${{OUTFILE}}"
         fi
         """
@@ -77,17 +84,24 @@ rule delly_s:  # single-sample analysis
         fai=get_faidx()[0],
         bam=get_bam("{path}/{sample}"),
         bai=get_bai("{path}/{sample}"),
+        excl_opt=get_bed()
     params:
         excl_opt='-x "%s"' % get_bed() if exclude_regions() else "",
     output:
-        os.path.join(
+        bcf = os.path.join(
             "{path}",
             "{sample}",
             get_outdir("delly"),
             "delly-{}{}".format("{sv_type}", config.file_exts.bcf),
         ),
+        bcf_index = os.path.join(
+            "{path}",
+            "{sample}",
+            get_outdir("delly"),
+            "delly-{}{}".format("{sv_type}", config.file_exts.bcf),
+        ) + ".csi"
     conda:
-        "../envs/caller.yaml"
+        "caller"
     threads: 1
     resources:
         mem_mb=config.callers.delly.memory,
@@ -96,8 +110,8 @@ rule delly_s:  # single-sample analysis
         """
         set -xe
 
-        OUTDIR="$(dirname "{output}")"
-        PREFIX="$(basename "{output}" .bcf)"
+        OUTDIR="$(dirname "{output.bcf}")"
+        PREFIX="$(basename "{output.bcf}" .bcf)"
         OUTFILE="${{OUTDIR}}/${{PREFIX}}.unfiltered.bcf"
 
         # run dummy or real job
@@ -119,18 +133,18 @@ rule delly_s:  # single-sample analysis
             # SV quality filtering
             bcftools filter \
                 -O b `# compressed BCF format` \
-                -o "{output}" \
+                -o "{output.bcf}" \
                 -i "FILTER == 'PASS'" \
                 "${{OUTFILE}}"
             # index BCF file
-            bcftools index "{output}"
+            bcftools index "{output.bcf}"
         fi
         """
 
 
 rule delly_merge:  # used by both modes
     input:
-        [
+        bcf = [
             os.path.join(
                 "{path}",
                 "{tumor}--{normal}",
@@ -149,6 +163,25 @@ rule delly_merge:  # used by both modes
             )
             for sv in config.callers.delly.sv_types
         ],
+        bcf_index = [
+            os.path.join(
+                "{path}",
+                "{tumor}--{normal}",
+                get_outdir("delly"),
+                "delly-{}{}".format(sv, config.file_exts.bcf),
+            ) + ".csi"
+            for sv in config.callers.delly.sv_types
+        ]
+        if config.mode is config.mode.PAIRED_SAMPLE
+        else [
+            os.path.join(
+                "{path}",
+                "{sample}",
+                get_outdir("delly"),
+                "delly-{}{}".format(sv, config.file_exts.bcf),
+            ) + ".csi"
+            for sv in config.callers.delly.sv_types
+        ]
     output:
         os.path.join(
             "{path}",
@@ -164,7 +197,7 @@ rule delly_merge:  # used by both modes
             "delly{}".format(config.file_exts.vcf),
         ),
     conda:
-        "../envs/caller.yaml"
+        "caller"
     threads: 1
     resources:
         mem_mb=1024,
@@ -182,6 +215,6 @@ rule delly_merge:  # used by both modes
                 -a `# allow overlaps` \
                 -O v `# uncompressed VCF format` \
                 -o "{output}" \
-                {input}
+                {input.bcf}
         fi
         """

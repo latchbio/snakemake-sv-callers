@@ -1,4 +1,6 @@
 ---
+name: postproc
+
 channels:
   - conda-forge
   - bioconda

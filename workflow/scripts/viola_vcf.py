@@ -1,11 +1,24 @@
 import os
 import shutil
 import viola
+import argparse
 
-vcf_in = str(snakemake.input)
+parser = argparse.ArgumentParser(description='viola parser')
+
+parser.add_argument("-in", "--vcf_in", help="Input VCF", type=str)
+parser.add_argument("-out", "--vcf_out", help="Output VCF", type=str)
+parser.add_argument("-c", "--caller", help="Wildcard prefix", type=str)
+
+args = parser.parse_args()
+
+vcf_in = args.vcf_in
+vcf_out = args.vcf_out
+caller = args.caller
+
+# vcf_in = str(snakemake.input)
+# vcf_out = str(snakemake.output)
+# caller = str(snakemake.wildcards.prefix)
 vcf_org = vcf_in + '.org'
-vcf_out = str(snakemake.output)
-caller = str(snakemake.wildcards.prefix)
 
 if caller == 'gridss':
     os.rename(vcf_in, vcf_org)
