@@ -17,7 +17,7 @@ rule lumpy_p:  # paired-samples analysis
             "lumpy{}".format(config.file_exts.vcf),
         ),
     conda:
-        "caller"
+        "../envs/caller.yaml"
     threads: config.callers.lumpy.threads
     resources:
         mem_mb=config.callers.lumpy.memory,
@@ -73,7 +73,7 @@ rule lumpy_s:  # single-sample analysis
             "lumpy{}".format(config.file_exts.vcf),
         ),
     conda:
-        "caller"
+        "../envs/caller.yaml"
     threads: config.callers.lumpy.threads
     resources:
         mem_mb=config.callers.lumpy.memory,

@@ -30,7 +30,7 @@ rule viola:  # used by both modes
             "{}{}".format("{prefix}", config.file_exts.vcf),
         ),
     conda:
-        "postproc"
+        "../envs/postproc.yaml"
     threads: config.postproc.survivor.threads
     resources:
         mem_mb=config.postproc.survivor.memory,

@@ -17,7 +17,7 @@ rule gridss_p:  # paired-samples analysis
             "gridss{}".format(config.file_exts.vcf),
         ),
     conda:
-        "caller"
+        "../envs/caller.yaml"
     threads: config.callers.gridss.threads
     resources:
         mem_mb=config.callers.gridss.memory,
@@ -85,7 +85,7 @@ rule gridss_s:  # single-sample analysis
             "gridss{}".format(config.file_exts.vcf),
         ),
     conda:
-        "caller"
+        "../envs/caller.yaml"
     threads: config.callers.gridss.threads
     resources:
         mem_mb=config.callers.gridss.memory,

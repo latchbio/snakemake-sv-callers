@@ -18,7 +18,7 @@ rule manta_p:  # paired-samples analysis
             "manta{}".format(config.file_exts.vcf),
         ),
     conda:
-        "caller"
+        "../envs/caller.yaml"
     threads: config.callers.manta.threads
     resources:
         mem_mb=config.callers.manta.memory,
@@ -75,7 +75,7 @@ rule manta_s:  # single-sample analysis: germline or tumor-only
             "manta{}".format(config.file_exts.vcf),
         ),
     conda:
-        "caller"
+        "../envs/caller.yaml"
     threads: config.callers.manta.threads
     resources:
         mem_mb=config.callers.manta.memory,

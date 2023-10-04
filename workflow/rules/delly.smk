@@ -23,7 +23,7 @@ rule delly_p:  # paired-samples analysis
             "delly-{}{}".format("{sv_type}", config.file_exts.bcf),
         ) + ".csi"
     conda:
-        "caller"
+        "../envs/caller.yaml"
     threads: config.callers.delly.threads
     resources:
         mem_mb=config.callers.delly.memory,
@@ -101,7 +101,7 @@ rule delly_s:  # single-sample analysis
             "delly-{}{}".format("{sv_type}", config.file_exts.bcf),
         ) + ".csi"
     conda:
-        "caller"
+        "../envs/caller.yaml"
     threads: 1
     resources:
         mem_mb=config.callers.delly.memory,
@@ -197,7 +197,7 @@ rule delly_merge:  # used by both modes
             "delly{}".format(config.file_exts.vcf),
         ),
     conda:
-        "caller"
+        "../envs/caller.yaml"
     threads: 1
     resources:
         mem_mb=1024,
