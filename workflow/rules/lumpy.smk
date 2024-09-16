@@ -6,6 +6,7 @@ rule lumpy_p:  # paired-samples analysis
         tumor_bai=get_bai("{path}/{tumor}"),
         normal_bam=get_bam("{path}/{normal}"),
         normal_bai=get_bai("{path}/{normal}"),
+        excl_opt=get_bed()
     params:
         excl_opt='-x "%s"' % get_bed() if exclude_regions() else "",
     output:
@@ -61,6 +62,7 @@ rule lumpy_s:  # single-sample analysis
         fai=get_faidx()[0],
         bam=get_bam("{path}/{sample}"),
         bai=get_bai("{path}/{sample}"),
+        excl_opt=get_bed()
     params:
         excl_opt='-x "%s"' % get_bed() if exclude_regions() else "",
     output:

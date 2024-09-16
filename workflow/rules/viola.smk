@@ -35,5 +35,8 @@ rule viola:  # used by both modes
     resources:
         mem_mb=config.postproc.survivor.memory,
         tmp_mb=config.postproc.survivor.tmpspace,
-    script:
-        "../scripts/viola_vcf.py"
+    shell:
+        """
+        /opt/conda/envs/workflow/envs/postproc/bin/python3 scripts/viola_vcf.py \
+        -in "{input}" -out "{output}" -c "{wildcards.prefix}"
+        """

@@ -1,4 +1,5 @@
 ---
+name: caller
 channels:
   - conda-forge
   - bioconda

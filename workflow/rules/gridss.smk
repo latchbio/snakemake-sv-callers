@@ -6,6 +6,7 @@ rule gridss_p:  # paired-samples analysis
         tumor_bai=get_bai("{path}/{tumor}"),
         normal_bam=get_bam("{path}/{normal}"),
         normal_bai=get_bai("{path}/{normal}"),
+        excl_opt=get_bed()
     params:
         excl_opt="BLACKLIST={}".format(get_bed()) if exclude_regions() else "",
     output:
@@ -73,6 +74,7 @@ rule gridss_s:  # single-sample analysis
         fai=get_faidx(),  # bwa index files also required
         bam=get_bam("{path}/{sample}"),
         bai=get_bai("{path}/{sample}"),
+        excl_opt=get_bed()
     params:
         excl_opt="BLACKLIST={}".format(get_bed()) if exclude_regions() else "",
     output:

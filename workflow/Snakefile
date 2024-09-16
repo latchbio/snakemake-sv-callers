@@ -4,6 +4,9 @@
 # paired-sample WGS data, respectively.
 #
 
+import os
+os.chdir("workflow")
+
 from helper_functions import *
 
 __author__ = "Arnold Kuzniar"
